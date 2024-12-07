@@ -71,7 +71,10 @@ func addSsmParams(path string, envs map[string]string) {
 	overwrite := true
 
 	for key, value := range envs {
-		keyWithPath := path + key
+		keyWithPath := path + "/" + key
+
+		// remove // from the key
+		keyWithPath = strings.Replace(keyWithPath, "//", "/", -1)
 
 		_, err := ssmClient.PutParameter(
 			context.TODO(),
