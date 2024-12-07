@@ -1,0 +1,3 @@
+LocalOps Env to SSM CLI
+
+Sync the .env file with AWS SSM.
