@@ -1,4 +1,4 @@
-package envssm
+package main
 
 import (
 	"bytes"
