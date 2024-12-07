@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - binary: ops
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      # default flags
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+      - -X github.com/localopsco/env-ssm/cmd.Version={{.Version}}
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .Binary }}-{{ .Os }}-{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - info.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+announce:
+  skip: true
+
+release:
+  disable: "{{ not .Env.GITHUB_ACTIONS }}"
+
+# currently not used, but keep this for later reference
+# blobs:
+#   # Common settings for S3 uploads
+#   # Upload artifacts to the version-specific directory
+#   - &s3_common
+#     provider: s3
+#     disable: '{{ not (eq .Env.UPLOAD_TO_S3 "true") }}'
+#     bucket: "{{ .Env.S3_BUCKET_NAME }}"
+#     region: "{{ .Env.S3_BUCKET_REGION }}"
+#     endpoint: "{{ .Env.S3_ENDPOINT }}"
+#     directory: "{{.Version}}"
+#     include_meta: true
+#     acl: public
+#     cache_control:
+#       - max-age=9999
+#       - public
+
+#   # Upload artifacts to the 'latest' directory
+#   - <<: *s3_common
+#     directory: latest
+
+#   # Upload additional required files to the root of the bucket
+#   - <<: *s3_common
+#     directory: .
+#     extra_files_only: true
+#     extra_files:
+#       - glob: dist/metadata.json
+#       - glob: install.sh
