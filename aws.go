@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
@@ -76,6 +77,8 @@ func addSsmParams(path string, envs map[string]string) {
 		// remove // from the key
 		keyWithPath = strings.Replace(keyWithPath, "//", "/", -1)
 
+		fmt.Println("[info] adding SSM param", keyWithPath)
+
 		_, err := ssmClient.PutParameter(
 			context.TODO(),
 			&ssm.PutParameterInput{
@@ -88,6 +91,8 @@ func addSsmParams(path string, envs map[string]string) {
 		if err != nil {
 			log.Fatalf("[error] unable to add SSM param %s, %v", key, err)
 		}
+
+		time.Sleep(1 * time.Second)
 	}
 
 	fmt.Println("[success] Done adding SSM params")
